@@ -1,11 +1,21 @@
+/*
+Hey everyone, and welcome to my repository. Here, i made a program that you can load into the arduino nano
+that's inside of the splash nano, a 'console' i just created by myself. It consists on 1 arduino nano, 1x 1088AS, 3x buttons, 1x switch or interruptor and a buzzer.
+The first game to ever exist on it is this one, which is the only one i created so far. I will try to make a tetris, with/without music, and when i have more time,
+i'll just tune it, even tho i took 4 days to create the first one (1st day was research, 2nd was programming this, 3rd testing and debugging and finally, on day 4th, i finished it by welding all the things
+together.). I'll just take some rest and develop more recreations of games. This one is like arkanoid, but it's not the same, since in arkanoid, there are blocks that you break, but so far, i just made
+the player and a bouncing ball.
+*/
+
+
 #include <LedControl.h>
 
-// Pines y Configuración
+// Pins and configuration
 const int DIN =  11, CS = 10, CLK = 13;
 const int btnL = 6, btnR = 5, btnS = 3;
 const int buzzer = 4;
 const int WIDTH = 8;
-// Variables de posición (0 a 7 para la librería)
+// Position variables + library fundamental variables
 int playerX = 4; 
 int playerY = 7; 
 int ballX = WIDTH/2;
@@ -23,7 +33,7 @@ void setup() {
   lc.setIntensity(0, 5);
   lc.clearDisplay(0);
   
-  renderPlayer(true); // Dibujar posición inicial
+  renderPlayer(true); // Draw initial player
   renderBall(true);
   bool ready = false;
   while (!ready) {
@@ -35,9 +45,9 @@ void setup() {
 }
 
 void loop() {
-  checkInput(); // Movimiento de plataforma (siempre activo)
+  checkInput(); // Ball movement (Always active)
 
-  // Control de tiempo para la pelota
+  // Time control for the ball
   if (millis() - ballClock > 250) { 
     updateGame(); 
     ballClock = millis();
@@ -46,16 +56,16 @@ void loop() {
 
 void checkInput() {
   if (digitalRead(btnL) == LOW) {
-    if (playerX > 1) { // Evitar que se salga por la izquierda (cuerpo de 2 leds)
-      renderPlayer(false); // Borrar donde estaba
-      playerX--;           // Mover
-      renderPlayer(true);  // Dibujar en nuevo sitio
-      delay(150);          // Antirebote
+    if (playerX > 1) { // Avoid the player from disappearing in the left
+      renderPlayer(false); 
+      playerX--;        
+      renderPlayer(true); 
+      delay(150);
     }
   }
 
   if (digitalRead(btnR) == LOW) {
-    if (playerX < 7) {     // Evitar que se salga por la derecha
+    if (playerX < 7) {     // Avoid the player from disappearing
       renderPlayer(false); 
       playerX++;
       renderPlayer(true);
@@ -64,8 +74,7 @@ void checkInput() {
   }
 }
 
-// Una sola función para pintar o borrar
-// Usamos playerX y playerY globales para no confundir variables
+// Only 1 function to erase or draw the player
 void renderPlayer(bool state) {
   // El jugador ocupa dos puntos: (X, Y) y (X-1, Y)
   lc.setLed(0, playerY, playerX, state);
@@ -77,14 +86,14 @@ void renderBall(bool state) {
 }
 
 void updateGame() {
-  // 1. BORRAR SOLO LA POSICIÓN VIEJA
+  // Erase the old ball
   renderBall(false);
 
-  // 2. CALCULAR NUEVA POSICIÓN PROYECTADA
+  
   int proxX = ballX + dirX;
   int proxY = ballY + dirY;
 
-  // 3. REBOTE EN PAREDES
+  
   if (proxX > 7 || proxX < 0) {
     dirX = -dirX;
     proxX = ballX + dirX; 
@@ -94,31 +103,29 @@ void updateGame() {
     proxY = ballY + dirY;
   }
 
-  // 4. REBOTE EN PLATAFORMA (CORREGIDO)
+  
   if (proxY == playerY && (proxX == playerX || proxX == playerX - 1)) {
-    dirY = -1; // Forzamos dirección hacia arriba
+    dirY = -1; // Force direction up
     
     if (dirX == 0) {
         dirX = (playerX > 4) ? -1 : 1;
     }
     
-    // IMPORTANTE: La pelota se queda en la fila 6, NO en la 7
+    // IMPORTANT: The ball stays on the row number 6, not in 7
     proxY = playerY - 1; 
-    proxX = ballX + dirX; // Recalculamos X con el nuevo dirX
+    proxX = ballX + dirX; 
   } 
   
-  // 5. GAME OVER
+  
   else if (proxY > 7) {
     gameOver();
     resetGame();
     return;
   }
 
-  // 6. ACTUALIZAR Y DIBUJAR
   ballX = proxX;
   ballY = proxY;
   
-  // Limitar ballX para que no se salga de la matriz por el rebote
   if(ballX < 0) ballX = 0;
   if(ballX > 7) ballX = 7;
 
@@ -134,9 +141,9 @@ void gameOver() {
   delay(350);
   tone(buzzer, 164, 300); // Mi (E3)
   delay(350);
-  tone(buzzer, 146, 600); // Re (D3) - Nota larga final
+  tone(buzzer, 146, 600); // Re (D3) - Large note at the end
   delay(700);
-  noTone(buzzer);         // Asegurar que silencia
+  noTone(buzzer);         // Makes sure it shuts up
 }
 
 void resetGame() {
@@ -157,14 +164,20 @@ void resetGame() {
 }
 
 void startMusic() {
-  // Notas rápidas ascendentes: Do4, Mi4, Sol4, Do5
+  // Rapidly asecnding notes: Do4, Mi4, Sol4, Do5
   tone(buzzer, 261, 100); // Do (C4)
   delay(150);
   tone(buzzer, 329, 100); // Mi (E4)
   delay(150);
   tone(buzzer, 392, 100); // Sol (G4)
   delay(150);
-  tone(buzzer, 523, 300); // Do (C5) - Nota aguda final
+  tone(buzzer, 523, 300); // Do (C5) - Sharp note at the end
   delay(400);
   noTone(buzzer);
 }
+
+
+// Congratulations, you've made it to the end of this repository.
+// Go to 95.131.202.52 just to know what the splash nano is.
+// Basically, it's a light console made using an arduino nano, a 1088AS, a buzzer, 3 buttons and 1 interruptor / switch
+// I am also the creator of it. Thanks for distributing mi code.
