@@ -15,6 +15,8 @@ const int DIN =  11, CS = 10, CLK = 13;
 const int btnL = 6, btnR = 5, btnS = 3;
 const int buzzer = 4;
 const int WIDTH = 8;
+const int speedLimit = 100; // Change it however you want
+const int acceleration = 10;
 // Position variables + library fundamental variables
 int playerX = 4; 
 int playerY = 7; 
@@ -22,6 +24,7 @@ int ballX = WIDTH/2;
 int ballY = WIDTH/2;
 int dirX = 0;
 int dirY = 1;
+int speed = 250;
 unsigned long ballClock = 0;
 LedControl lc = LedControl(DIN, CLK, CS, 1);
 
@@ -48,7 +51,7 @@ void loop() {
   checkInput(); // Ball movement (Always active)
 
   // Time control for the ball
-  if (millis() - ballClock > 250) { 
+  if (millis() - ballClock > speed) { 
     updateGame(); 
     ballClock = millis();
   }
@@ -114,6 +117,9 @@ void updateGame() {
     // IMPORTANT: The ball stays on the row number 6, not in 7
     proxY = playerY - 1; 
     proxX = ballX + dirX; 
+    if (speed > speedLimit) {
+      speed -= acceleration;
+    }
   } 
   
   
